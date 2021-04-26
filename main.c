@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
@@ -20,12 +19,12 @@ uint32_t cnt;
 void UARTIntHandler(void)
 {
     uint32_t ui32Status;
-    ui32Status = UARTIntStatus(UART0_BASE, true); // Get the interrrupt status.
-    UARTIntClear(UART0_BASE, ui32Status);  // Clear the asserted interrupts.
+    ui32Status = UARTIntStatus(UART6_BASE, true); // Get the interrrupt status.
+    UARTIntClear(UART6_BASE, ui32Status);  // Clear the asserted interrupts.
 
-    while (UARTCharsAvail(UART0_BASE)) // Loop while there are characters in the receive FIFO.
+    while (UARTCharsAvail(UART6_BASE)) // Loop while there are characters in the receive FIFO.
     {
-        str[cnt++] = UARTCharGetNonBlocking(UART0_BASE);
+        str[cnt++] = UARTCharGetNonBlocking(UART6_BASE);
         if (cnt == 300)
         {
             cnt = 0;
@@ -42,7 +41,7 @@ void UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 {
     while (ui32Count--)    // Loop while there are more characters to send.
     {
-        UARTCharPut(UART0_BASE, *pui8Buffer++); // Write the next character to the UART.
+        UARTCharPut(UART6_BASE, *pui8Buffer++); // Write the next character to the UART.
     }
 }
 /*
@@ -60,17 +59,17 @@ int main(void)
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
 //UARt0
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART6);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
     IntMasterEnable();
-    GPIOPinConfigure(GPIO_PA0_U0RX); // Set GPIO A0 and A1 as UART pins.
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 250000,
+    GPIOPinConfigure(GPIO_PD4_U6RX); // Set GPIO A0 and A1 as UART pins.
+    GPIOPinConfigure(GPIO_PD5_U6TX);
+    GPIOPinTypeUART(GPIO_PORTD_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+    UARTConfigSetExpClk(UART6_BASE, SysCtlClockGet(), 250000,
                             (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
                             UART_CONFIG_PAR_NONE));
-    IntEnable(INT_UART0);
-    UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT | UART_INT_TX);
+    IntEnable(INT_UART6);
+    UARTIntEnable(UART6_BASE, UART_INT_RX | UART_INT_RT | UART_INT_TX);
     UARTSend((uint8_t *) "\033[2JEnter text: ", 16);
 while(1)
 {
